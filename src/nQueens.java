@@ -2,21 +2,22 @@ public class nQueens {
 
     public static void main(String[] args) {
         int[] aSolution = {1, 6, 8, 3, 7, 4, 2, 5};
-        int[] queenPositions = {1, 6, 8, 3, 5, 0, 0, 0};
-        isLegalPosition(aSolution, 8);
-        isLegalPosition(queenPositions, 8);
+        int[] queenPositions = {1, 6, 8, 2, 4, 7, 3, 0};
+        int[] emptyBoard = {0, 0, 0, 0, 0, 0, 0, 0};
+        printChessboard(nextLegalPosition(initializeBoard(queenPositions, 8), 0));
+
     }
+
+    // Question 1 Methods
 
     /**
      * Given a chessboard and an array containing the positions of the queens present on a board
      * determine if the current orientation of the board has no queens threatening one another
-     * @param queenPositions 1D array containing the positions of queens in a finished/unfinished board
-     * @param n size of the chessboard
+     *
+     * @param board 2D array representing the current orientation of the chess board
      * @return a boolean if the position is legal or not
      */
-    public static boolean isLegalPosition(int[] queenPositions, int n) {
-        //initialize the board
-        int[][] board = initializeBoard(queenPositions, n);
+    public static boolean isLegalPosition(int[][] board) {
 
         //iterate through the chess board
         for (int i = 0; i < board.length; i++) {
@@ -91,14 +92,14 @@ public class nQueens {
             }
         }
 
-        //check y = -x diagonal
+        //check column = -row diagonal
         for (int i = row, j = column; i >= 0 && j >= 0; i--, j--) {
             if (i != row && board[i][j] == 1) {
                 return true;
             }
         }
 
-        //check y = x diagonal
+        //check column = row diagonal
         for (int i = row, j = column; i >= 0 && j < board.length; i--, j++) {
             if (i != row && board[i][j] == 1) {
                 return true;
@@ -109,6 +110,7 @@ public class nQueens {
 
     /**
      * function that prints out the array representation of a chessboard
+     *
      * @param board 2D array representation of a chessboard we want to display
      */
     public static void printChessboard(int[][] board) {
@@ -120,5 +122,114 @@ public class nQueens {
             System.out.println();
         }
         System.out.print("\n");
+    }
+
+    //Question 2 Methods
+
+    /**
+     * @param board 2D array representation of a chessboard
+     * @param n     row we are checking
+     * @return      returns the next legal position in the form of an array
+     */
+    public static int[][] nextLegalPosition(int[][] board, int n) {
+        queenPos lastQueen = getQueenPos(board, board.length - 1);
+
+        int nextRow = lastQueen.getRow();
+
+        if (nextRow < board.length - 1 && isLegalPosition(board)) {
+            //I can foresee an issue here just check here if anything goes wrong
+            return getNextLegalPosition(board, nextRow + 1);
+        }
+
+        return getNextLegalPosition(board, n);
+    }
+
+    /**
+     * @param board 2D representation of the current orientation of the chess board
+     * @param row the row of the chess board that we are looking at
+     * @return the chessboard after being modified
+     */
+    public static int[][] getNextLegalPosition(int[][] board, int row) {
+        int column = -1;
+        queenPos lastPos = getQueenPos(board, board.length - 1);
+
+        if (row <= lastPos.row) {
+            column = lastPos.column;
+        }
+
+        if (column == -1) {
+            for (int i = 0; i < board.length; i++) {
+                if (!isQueenThreatened(board, row, i)) {
+                    board[row][i] = 1;
+                    return board;
+                }
+            }
+
+            board[lastPos.row][lastPos.column] = 0;
+            return getNextLegalPosition(board, lastPos.row);
+        }
+
+        //if row isn't empty we want to go back to the previous row and remove the queen
+        board[lastPos.row][lastPos.column] = 0;
+
+        //now we iterate through this row
+        for (int i = 0; i < board.length; i++) {
+            if (!isQueenThreatened(board, row, i)) {
+                if (i != lastPos.column) {
+                    board[row][i] = 1;
+                    return board;
+                }
+            }
+        }
+        return getNextLegalPosition(board, row - 1);
+    }
+
+    /**
+     * class to hold the row and column position of a queen
+     */
+    public static class queenPos {
+        int row;
+        int column;
+
+        public queenPos(int row, int column) {
+            this.row = row;
+            this.column = column;
+        }
+
+        public int getRow() {
+            return row;
+        }
+
+        public int getColumn() {
+            return column;
+        }
+    }
+
+    /**
+     * gets the position of the last queen through recursion
+     *
+     * @param board current orientation of the chess board
+     * @param n     row that we are looking at, when calling we want to use board.length - 1 to get the last row
+     * @return a queenPos class with the row and column stored within them
+     */
+    public static queenPos getQueenPos(int[][] board, int n) {
+        int column = -1;
+
+        queenPos lastQueenPos = new queenPos(-1, -1);
+
+        //check for queen in row
+        for (int i = 0; i < board.length; i++) {
+            if (board[n][i] == 1) {
+                column = i;
+            }
+            lastQueenPos.row = n;
+            lastQueenPos.column = column;
+        }
+
+        if (column == -1) {
+            lastQueenPos = getQueenPos(board, n - 1);
+        }
+
+        return lastQueenPos;
     }
 }
