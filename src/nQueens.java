@@ -1,10 +1,11 @@
 public class nQueens {
 
+    //check to make sure that
     public static void main(String[] args) {
         int[] aSolution = {1, 6, 8, 3, 7, 4, 2, 5};
         int[] queenPositions = {1, 6, 8, 2, 4, 7, 3, 0};
-        int[] emptyBoard = {0, 0, 0, 0, 0, 0, 0, 0};
-        printChessboard(nextLegalPosition(initializeBoard(queenPositions, 8), 0));
+        int[] emptyBoard = {1, 3, 5, 8, 2, 4, 6, 0};
+        printChessboard(nextLegalPosition(initializeBoard(emptyBoard, 8), 0));
 
     }
 
@@ -166,7 +167,7 @@ public class nQueens {
             }
 
             board[lastPos.row][lastPos.column] = 0;
-            return getNextLegalPosition(board, lastPos.row);
+            return getNextLegalPosition(board, lastPos.row - 1);
         }
 
         //if row isn't empty we want to go back to the previous row and remove the queen
